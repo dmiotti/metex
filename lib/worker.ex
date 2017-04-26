@@ -18,6 +18,10 @@ defmodule Metex.Worker do
 	def reset_stats(pid) do
 		GenServer.cast(pid, :reset_stats)
 	end
+  
+  def stop(pid) do
+    GenServer.cast(pid, :stop)
+  end
 
 	## Server Callbacks
 
@@ -43,6 +47,22 @@ defmodule Metex.Worker do
 	def handle_cast(:reset_stats, _stats) do
 		{:noreply, %{}}
 	end
+
+  def handle_cast(:stop, stats) do
+    {:stop, :normal, stats}
+  end
+
+  def handle_info(msg, stats) do
+    IO.puts "received #{inspect msg}"
+    {:noreply, stats}
+  end
+
+  def terminate(reason, stats) do
+    # We could write to a file, data etc
+    IO.puts "server terminated because of #{inspect reason}" 
+      inspect stats
+    :ok
+  end
 
 	## Helper Functions
 
@@ -83,5 +103,4 @@ defmodule Metex.Worker do
 				Map.put_new(old_stats, location, 1)
 		end
 	end
-
 end
